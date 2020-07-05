@@ -1,0 +1,39 @@
+* Link your Japanese sentence to external services or to the browser
+
+** warning
+
+ These features only work in the computer, not the browser.
+
+* Features
+
+There are 4 features in this addon.
+
+Assume that there is a field called sentenceJp (that contains some japanese):
+
+
+** Online transators
+
+To add a link to both Google Translate and DeepL add the following to your card:
+
+{{linktrans:sentenceJp}}
+
+** Jisho translate
+
+There is a way to do this in Anki, but I am lazy so I use:
+
+{{jisho:sentenceJp}}
+
+** Jisho Kanji
+
+For every kanji in sentenceJp create a link to its corresponding Jisho page:
+
+{{jishok:sentenceJp}}
+
+** Go to the browser and find the kanji
+
+This is a bit more complex. First, you need to have deck with kanji that has field called kanji, where, you guessed it right
+contains the kanji. Use:
+
+{{kbrowse:sentenceJP}}
+
+Then every kanji in the sentence  will link to the browser at that specific kanji
