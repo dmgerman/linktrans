@@ -67,10 +67,12 @@ hooks.field_filter.append(linktrans_do_field)
 
 # handle searching for kanji
 
+kLinkPrefix = 'klink:'
+
 def handle_kanji_command(handled, cmd, context):
-    if not cmd.startswith("klink:"):
+    if not cmd.startswith(kLinkPrefix):
         return handled
-    search = 'kanji:' + cmd[len(prefix):].strip()
+    search = 'kanji:' + cmd[len(kLinkPrefix):].strip()
     browser = dialogs.open("Browser", mw)
     browser.form.searchEdit.lineEdit().setText(search)
     browser.onSearchActivated()
