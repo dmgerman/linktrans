@@ -1,12 +1,13 @@
 # version 0.3
 
 
-import regex as re
+import re
 
 import urllib.parse
 
-from aqt import mw
 from anki import hooks
+from aqt import dialogs, gui_hooks, mw
+
 
 googleTransURL= 'https://translate.google.com/#view=home&op=translate&sl=ja&tl=en&text='
 deepLTransURL=  'https://www.deepl.com/en/translator#jp/en/'
@@ -31,36 +32,33 @@ def translateLink(st):
 &nbsp;<span class='translate'>&nbsp;(<a href='%s%s'>%s</a>)</span>
 """%(googleTransURL, queryStr, googleStr, deepLTransURL, queryStr, deepLStr)
 
-kanjiRep = re.compile(r'(\p{IsHan})', re.UNICODE)
+kanjiRep = re.compile(r'([\u4E00-\u9FFF])', re.UNICODE)
+hashChar = '%23'
 
-def kanjiLink(st):
+def doKanjiLink(st):
     stClean = remove_tags(st)
     stOut = kanjiRep.sub('<a href=\'javascript:pycmd("klink:\\1");\'>\\1</a>', stClean)
-    print ("output from kanji link [%s]"%stOut)
-#    st2 = kanjiRep.sub('<a href="%s\\1%20%23kanji">\\1</a>'%(jishoDictURL),stClean)
     return stOut
 
 def doJishoKanji(st):
     stClean = remove_tags(st)
-    stOut = kanjiRep.sub('<a href="%s\\1%20%23kanji">\\1</a>'%(jishoDictURL),stClean)
-    print ("output from doJishoKanji [%s]"%stOut)
+    stOut = kanjiRep.sub('<a href="%s\\1 %skanji">\\1</a>'%(jishoDictURL, hashChar),stClean)
     return stOut
-
 
 def doJisho(st):
     stClean = remove_tags(st)
     queryStr = urllib.parse.quote(stClean, safe='')
-    return "<span class='dictionary'>(<a href='%s%s'>%s</a>)</span>"%(jishoDictURL, queryStr, queryStr)
-
+    return "<span class='dictionary'>(<a href='%s%s'>%s</a>)</span>"%(jishoDictURL, queryStr, st)
 
 def linktrans_do_field(fieldText, fieldName, filterName, context):
-
     if filterName == "linktrans":
         return translateLink(fieldText)
     elif filterName == "jisho":
         return doJisho(fieldText)
     elif filterName == "jishok":
         return doJishoKanji(fieldText)
+    elif filterName == "kbrowse":
+        return doKanjiLink(fieldText)
     else:
         return fieldText
 
@@ -70,11 +68,9 @@ hooks.field_filter.append(linktrans_do_field)
 # handle searching for kanji
 
 def handle_kanji_command(handled, cmd, context):
-    print("my command [%s]\n"%cmd)
-    prefix = "klink:"
-    if not cmd.startswith(prefix):
+    if not cmd.startswith("klink:"):
         return handled
-    search = cmd[len(prefix):]
+    search = 'kanji:' + cmd[len(prefix):].strip()
     browser = dialogs.open("Browser", mw)
     browser.form.searchEdit.lineEdit().setText(search)
     browser.onSearchActivated()
